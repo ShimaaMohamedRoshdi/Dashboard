@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { AiOutlineMenu } from 'react-icons/ai';
 import { FiShoppingCart } from 'react-icons/fi';
@@ -15,7 +16,7 @@ const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
       type="button"
       onClick={() => customFunc()}
       style={{ color }}
-      className="relative text-xl rounded-full p-3 hover:bg-light-gray"
+      className="relative text-xl rounded-full p-3 hover:bg-light-gray dark:hover:bg-dark-gray"
     >
       <span
         style={{ background: dotColor }}
@@ -27,13 +28,11 @@ const NavButton = ({ title, customFunc, icon, color, dotColor }) => (
 );
 
 const Navbar = () => {
-  const { activeMenu, setActiveMenu, currentColor,
-     isClicked, setIsClicked,screenSize,setScreenSize } = useStateContext(); 
+  const { activeMenu, setActiveMenu, currentColor, currentMode, setMode,
+     isClicked, setIsClicked, screenSize, setScreenSize } = useStateContext(); 
 
-  // Handle what happens when an icon is clicked
   const handleClick = (section) => {
     setIsClicked((prevState) => ({
-      // Close the previous section when opening a new one
       cart: section === 'cart' ? !prevState.cart : false,
       chat: section === 'chat' ? !prevState.chat : false,
       notification: section === 'notifications' ? !prevState.notification : false,
@@ -41,26 +40,24 @@ const Navbar = () => {
     }));
   };
 
-useEffect(()=>{
-const handleResize=()=>setScreenSize
-(window.innerWidth);
-window.addEventListener('resize' ,handleResize);
+  useEffect(() => {
+    const handleResize = () => setScreenSize(window.innerWidth);
+    window.addEventListener('resize', handleResize);
 
-handleResize();
-return()=> window.removeEventListener('resize',handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  },[])
-  useEffect(()=>{
- if(screenSize<=900){
-  setActiveMenu(false)
- }else{
-  setActiveMenu(true)
- }
-  },[screenSize])
+  useEffect(() => {
+    if (screenSize <= 900) {
+      setActiveMenu(false);
+    } else {
+      setActiveMenu(true);
+    }
+  }, [screenSize]);
 
   return (
-    <div className='flex justify-between p-2 md:mx-6 relative'>
-      {/* NavButton for Menu */}
+    <div className={`flex justify-between p-2 md:mx-6 relative ${currentMode === 'Dark' ? 'dark' : ''}`}>
       <NavButton
         title="Menu"
         customFunc={() => setActiveMenu(!activeMenu)}
@@ -69,7 +66,6 @@ return()=> window.removeEventListener('resize',handleResize);
         dotColor="red"
       />
       
-      {/* NavButton for Cart */}
       <NavButton
         title="Cart"
         customFunc={() => handleClick('cart')}
@@ -78,16 +74,14 @@ return()=> window.removeEventListener('resize',handleResize);
         dotColor="green"
       />
 
-      {/* NavButton for Chat */}
       <NavButton
         title="Chat"
         dotColor="#03C9D7"
         customFunc={() => handleClick('chat')}
-        color={currentColor} // Ensure currentColor is coming from the context
+        color={currentColor}
         icon={<BsChatLeft />}
       />
 
-      {/* NavButton for Notifications */}
       <NavButton
         title="Notifications"
         customFunc={() => handleClick('notifications')}
@@ -96,10 +90,9 @@ return()=> window.removeEventListener('resize',handleResize);
         dotColor="yellow"
       />
 
-      {/* Profile Section */}
       <TooltipComponent content="Profile" position="BottomCenter">
         <div
-          className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray rounded-lg"
+          className="flex items-center gap-2 cursor-pointer p-1 hover:bg-light-gray dark:hover:bg-dark-gray rounded-lg"
           onClick={() => handleClick('userProfile')}
         >
           <img
@@ -115,7 +108,13 @@ return()=> window.removeEventListener('resize',handleResize);
         </div>
       </TooltipComponent>
 
-      {/* Conditional rendering based on clicked section */}
+      <NavButton
+        title="Toggle Theme"
+        customFunc={() => setMode(currentMode === 'Light' ? 'Dark' : 'Light')}
+        icon={currentMode === 'Light' ? '🌙' : '☀️'}
+        color={currentColor}
+      />
+
       <div className="absolute right-0 top-16 flex flex-col items-center">
         {isClicked.cart && (<Cart />)}
         {isClicked.chat && (<Chat />)}
